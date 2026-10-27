@@ -11,8 +11,17 @@ import RecordEntryModal from './components/RecordEntryModal';
 import './styles.css';
 import './auth.css';
 
+function getTimeGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 5 || hour >= 21) return 'Good night';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 function App() {
   const [activePage, setActivePage] = useState('overview');
+  const [greeting, setGreeting] = useState(getTimeGreeting);
   const [authUser, setAuthUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [authMode, setAuthMode] = useState('login');
@@ -22,6 +31,12 @@ function App() {
   const [showEntryModal, setShowEntryModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dataError, setDataError] = useState('');
+
+  useEffect(() => {
+    const updateGreeting = () => setGreeting(getTimeGreeting());
+    const timerId = window.setInterval(updateGreeting, 60_000);
+    return () => window.clearInterval(timerId);
+  }, []);
 
   async function loadData(ownerUid, isCancelled) {
     setLoading(true);
@@ -176,7 +191,7 @@ function App() {
         <section className="page-heading">
           <div>
             <p className="eyebrow">{activePage.toUpperCase()}</p>
-            <h1>{activePage === 'overview' ? 'Good morning, shopkeeper' : activePage[0].toUpperCase() + activePage.slice(1)}</h1>
+            <h1>{activePage === 'overview' ? `${greeting}, shopkeeper` : activePage[0].toUpperCase() + activePage.slice(1)}</h1>
             <p className="muted">Keep every customer balance clear and every reminder easy.</p>
           </div>
           <button className="primary-button" onClick={() => setShowEntryModal(true)} disabled={!selectedCustomer}>+ Record entry</button>
