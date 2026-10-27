@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
 const demoCustomers = [
-  { name: 'Mama Ngozi', balance: 120000, progress: 68 },
-  { name: 'Femi Stores', balance: 310000, progress: 30 },
-  { name: 'Kunle & Sons', balance: 95000, progress: 90, overdue: true }
+  { name: 'Mama Ngozi', balance: 120000 },
+  { name: 'Femi Stores', balance: 310000 },
+  { name: 'Kunle & Sons', balance: 95000, overdue: true }
 ];
 
 export default function PublicCreditBookDemo() {
@@ -12,9 +12,9 @@ export default function PublicCreditBookDemo() {
   return (
     <section className="public-demo" aria-labelledby="public-demo-title">
       <div className="public-demo-intro">
-        <p className="eyebrow">YOUR SHOP, IN ONE PLACE</p>
-        <h2>Stay on top of every balance.</h2>
-        <p className="muted">Keep track of customer credit, payments, and reminders with ShopTab.</p>
+        <p className="eyebrow">A LOOK INSIDE THE BOOK</p>
+        <h2>See who still has a balance.</h2>
+        <p className="muted">Keep a simple record of credit and payments, and send a reminder when you need to.</p>
       </div>
       <div className="public-demo-card">
         <header className="public-demo-header">
@@ -22,16 +22,16 @@ export default function PublicCreditBookDemo() {
             <span className="public-demo-icon" aria-hidden="true">▤</span>
             <h3 id="public-demo-title">ShopTab</h3>
           </div>
-          <span className="public-demo-overdue">2 overdue</span>
+          <span className="public-demo-overdue">1 overdue</span>
         </header>
 
         <div className="public-demo-summary">
           <div>
-            <span>They owe you</span>
-            <strong>₦640,000</strong>
+            <span>Still to collect</span>
+            <strong>₦525,000</strong>
           </div>
           <div>
-            <span>They have paid</span>
+            <span>Payments logged</span>
             <strong>₦215,000</strong>
           </div>
         </div>
@@ -41,17 +41,7 @@ export default function PublicCreditBookDemo() {
             <div className="public-demo-customer" key={customer.name}>
               <div className="public-demo-customer-label">
                 <strong>{customer.name}</strong>
-                <span>₦{customer.balance.toLocaleString('en-NG')}</span>
-              </div>
-              <div
-                className="public-demo-progress"
-                role="img"
-                aria-label={`${customer.name}: sample balance progress`}
-              >
-                <span
-                  className={customer.overdue ? 'overdue' : ''}
-                  style={{ width: `${customer.progress}%` }}
-                />
+                <span>₦{customer.balance.toLocaleString('en-NG')}{customer.overdue ? ' · overdue' : ''}</span>
               </div>
             </div>
           ))}
@@ -70,7 +60,7 @@ export default function PublicCreditBookDemo() {
           </p>
         )}
       </div>
-      <p className="public-demo-disclaimer">Interactive preview with sample data only. No real customer information is shown.</p>
+      <p className="public-demo-disclaimer">Example figures only.</p>
     </section>
   );
 }

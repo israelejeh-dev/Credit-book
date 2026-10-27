@@ -195,10 +195,10 @@ function App() {
         <section className="page-heading">
           <div>
             <p className="eyebrow">{activePage.toUpperCase()}</p>
-            <h1>{activePage === 'overview' ? `${greeting}, shopkeeper` : activePage[0].toUpperCase() + activePage.slice(1)}</h1>
-            <p className="muted">Keep every customer balance clear and every reminder easy.</p>
+            <h1>{activePage === 'overview' ? greeting : activePage[0].toUpperCase() + activePage.slice(1)}</h1>
+            <p className="muted">A clear record of what’s owed, paid, and still to come.</p>
           </div>
-          <button className="primary-button" onClick={() => setShowEntryModal(true)} disabled={!selectedCustomer}>+ Record entry</button>
+          <button className="primary-button" onClick={() => setShowEntryModal(true)} disabled={!selectedCustomer}>Record sale or payment</button>
         </section>
 
         {activePage === 'overview' && (

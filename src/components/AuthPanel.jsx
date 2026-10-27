@@ -59,12 +59,12 @@ export default function AuthPanel({ mode, authAvailable }) {
   return (
     <section className="auth-gate">
       <form className="panel auth-panel" onSubmit={submit}>
-        <p className="eyebrow">{mode === 'login' ? 'WELCOME BACK' : 'NEW ACCOUNT'}</p>
-        <h1>{mode === 'login' ? 'Log in to ShopTab' : 'Create your ShopTab account'}</h1>
+        <p className="eyebrow">{mode === 'login' ? 'YOUR ACCOUNT' : 'GETTING STARTED'}</p>
+        <h1>{mode === 'login' ? 'Welcome back' : 'Start your customer book'}</h1>
         <p className="muted">
           {mode === 'login'
-            ? 'Log in to manage your customer balances, credit, and payments.'
-            : 'Create an account to start managing your shop’s customer book.'}
+            ? 'Log in to check balances, note a payment, or add a sale on credit.'
+            : 'Set up an account to keep your shop’s customer balances and payments in one place.'}
         </p>
         {!authAvailable && (
           <div className="connection-banner" role="status">
