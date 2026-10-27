@@ -21,7 +21,22 @@ VITE_FIREBASE_APP_ID=your-app-id
 
 The app uses two Firestore collections:
 
-- `customers`: `name`, `phone`, `created_at`
-- `ledger_entries`: `customer_id`, `type` (`credit` or `payment`), `amount`, `note`, `created_at`
+- `customers`: `name`, `phone`, `created_at`, `ownerUid`
+- `ledger_entries`: `customer_id`, `type` (`credit` or `payment`), `amount`, `note`, `created_at`, `ownerUid`
 
 The Firebase client is kept in `src/firebaseClient.js`. The React components use simple Firestore reads and writes with `async/await`.
+
+## Secure Firestore access
+
+The app filters records by the signed-in user's Firebase Authentication UID. This client-side filter is not a security boundary on its own: deploy the included `firestore.rules` to Firebase before using real customer data. The rules require authentication, enforce immutable ownership, and allow ledger entries only for customers owned by the same account.
+
+Deploy the rules with the Firebase CLI from this directory:
+
+```bash
+firebase login
+firebase deploy --only firestore:rules --project YOUR_FIREBASE_PROJECT_ID
+```
+
+Replace `YOUR_FIREBASE_PROJECT_ID` with the `VITE_FIREBASE_PROJECT_ID` value from your private `.env` file. Alternatively, publish the contents of `firestore.rules` in Firebase Console under **Firestore Database → Rules**.
+
+Existing documents in `customers` and `ledger_entries` without an `ownerUid` are intentionally not visible under these rules. They are left unchanged and locked until ownership is assigned through a trusted migration. Do not assign ownership from an unauthenticated or user-controlled client.

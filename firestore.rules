@@ -1,0 +1,55 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsCustomer(customerId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/customers/$(customerId))
+        && get(/databases/$(database)/documents/customers/$(customerId)).data.ownerUid == request.auth.uid;
+    }
+
+    match /customers/{customerId} {
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasAll(['name', 'phone', 'created_at', 'ownerUid'])
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'created_at', 'ownerUid']);
+
+      allow read, delete: if signedIn()
+        && resource.data.ownerUid == request.auth.uid;
+
+      allow update: if signedIn()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasAll(['name', 'phone', 'created_at', 'ownerUid'])
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'created_at', 'ownerUid']);
+    }
+
+    match /ledger_entries/{entryId} {
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && ownsCustomer(request.resource.data.customer_id)
+        && request.resource.data.keys().hasAll(['customer_id', 'type', 'amount', 'note', 'created_at', 'ownerUid'])
+        && request.resource.data.keys().hasOnly(['customer_id', 'type', 'amount', 'note', 'created_at', 'ownerUid'])
+        && request.resource.data.type in ['credit', 'payment']
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0;
+
+      allow read, delete: if signedIn()
+        && resource.data.ownerUid == request.auth.uid;
+
+      allow update: if signedIn()
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid
+        && ownsCustomer(request.resource.data.customer_id)
+        && request.resource.data.keys().hasAll(['customer_id', 'type', 'amount', 'note', 'created_at', 'ownerUid'])
+        && request.resource.data.keys().hasOnly(['customer_id', 'type', 'amount', 'note', 'created_at', 'ownerUid'])
+        && request.resource.data.type in ['credit', 'payment']
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0;
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db, firebaseReady } from './firebaseClient';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import Navbar from './components/Navbar';
 import AuthPanel from './components/AuthPanel';
 import AddCustomer from './components/AddCustomer';
@@ -23,19 +23,20 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [dataError, setDataError] = useState('');
 
-  async function loadData() {
+  async function loadData(ownerUid, isCancelled) {
     setLoading(true);
     setDataError('');
-    if (!firebaseReady || !db) {
+    if (!firebaseReady || !db || !ownerUid) {
       setDataError('Firebase is not connected yet. Add your VITE_FIREBASE values to .env.');
       setLoading(false);
       return;
     }
     try {
       const [customerSnapshot, entrySnapshot] = await Promise.all([
-        getDocs(collection(db, 'customers')),
-        getDocs(collection(db, 'ledger_entries'))
+        getDocs(query(collection(db, 'customers'), where('ownerUid', '==', ownerUid))),
+        getDocs(query(collection(db, 'ledger_entries'), where('ownerUid', '==', ownerUid)))
       ]);
+      if (isCancelled()) return;
       const customerRows = customerSnapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
       const entryRows = entrySnapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
       customerRows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -43,10 +44,12 @@ function App() {
       setCustomers(customerRows);
       setEntries(entryRows);
     } catch (error) {
+      if (isCancelled()) return;
       setDataError('ShopTab opened, but Firestore could not be reached. Check Firebase and Firestore rules.');
       console.error(error);
+    } finally {
+      if (!isCancelled()) setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -66,13 +69,21 @@ function App() {
 
   useEffect(() => {
     if (authLoading) return;
+    let cancelled = false;
     if (authUser) {
-      loadData();
+      setCustomers([]);
+      setEntries([]);
+      setSelectedCustomer(null);
+      setDataError('');
+      loadData(authUser.uid, () => cancelled);
     } else {
       setCustomers([]);
       setEntries([]);
+      setSelectedCustomer(null);
+      setDataError('');
       setLoading(false);
     }
+    return () => { cancelled = true; };
   }, [authUser, authLoading]);
 
   const selectedEntries = useMemo(
@@ -88,18 +99,30 @@ function App() {
   }
 
   async function addCustomer(form) {
-    if (!db) { setDataError('Connect Firebase before adding customers.'); return; }
-    const customerRef = await addDoc(collection(db, 'customers'), form);
-    const customer = { id: customerRef.id, ...form };
-    setCustomers((current) => [customer, ...current]);
-    setSelectedCustomer(customer);
+    if (!db || !authUser) { setDataError('Log in before adding customers.'); return; }
+    const customerData = { ...form, ownerUid: authUser.uid };
+    try {
+      const customerRef = await addDoc(collection(db, 'customers'), customerData);
+      const customer = { id: customerRef.id, ...customerData };
+      setCustomers((current) => [customer, ...current]);
+      setSelectedCustomer(customer);
+    } catch (error) {
+      console.error(error);
+      setDataError('Could not add the customer. Check your connection and Firestore security rules.');
+    }
   }
 
   async function addEntry(entry) {
-    if (!db) { setDataError('Connect Firebase before recording entries.'); return; }
-    const entryRef = await addDoc(collection(db, 'ledger_entries'), entry);
-    setEntries((current) => [{ id: entryRef.id, ...entry }, ...current]);
-    setShowEntryModal(false);
+    if (!db || !authUser) { setDataError('Log in before recording ledger entries.'); return; }
+    const entryData = { ...entry, ownerUid: authUser.uid };
+    try {
+      const entryRef = await addDoc(collection(db, 'ledger_entries'), entryData);
+      setEntries((current) => [{ id: entryRef.id, ...entryData }, ...current]);
+      setShowEntryModal(false);
+    } catch (error) {
+      console.error(error);
+      setDataError('Could not save the ledger entry. Check your connection and Firestore security rules.');
+    }
   }
 
   async function logout() {
