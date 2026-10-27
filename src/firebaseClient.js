@@ -11,7 +11,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-export const firebaseReady = Object.values(firebaseConfig).every(Boolean);
-const app = firebaseReady ? initializeApp(firebaseConfig) : null;
-export const auth = app ? getAuth(app) : null;
-export const db = app ? getFirestore(app) : null;
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
