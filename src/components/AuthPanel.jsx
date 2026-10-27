@@ -63,8 +63,8 @@ export default function AuthPanel({ mode, authAvailable }) {
         <h1>{mode === 'login' ? 'Log in to ShopTab' : 'Create your ShopTab account'}</h1>
         <p className="muted">
           {mode === 'login'
-            ? 'Log in to access your customer book and dashboard.'
-            : 'Sign up with your email address to get started.'}
+            ? 'Log in to manage your customer balances, credit, and payments.'
+            : 'Create an account to start managing your shop’s customer book.'}
         </p>
         {!authAvailable && (
           <div className="connection-banner" role="status">

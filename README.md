@@ -30,6 +30,8 @@ The Firebase client is kept in `src/firebaseClient.js`. The React components use
 
 The app filters records by the signed-in user's Firebase Authentication UID. This client-side filter is not a security boundary on its own: deploy the included `firestore.rules` to Firebase before using real customer data. The rules require authentication, enforce immutable ownership, and allow ledger entries only for customers owned by the same account.
 
+The signed-out page includes a public credit-book preview populated with illustrative sample data only. It does not read Firestore or send real reminders.
+
 Deploy the rules with the Firebase CLI from this directory:
 
 ```bash

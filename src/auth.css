@@ -40,6 +40,23 @@
   place-items: center;
 }
 
+.public-home {
+  width: min(1120px, 100%);
+  min-height: calc(100vh - 68px);
+  margin: 0 auto;
+  padding: 48px 28px;
+  display: grid;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(380px, 1.1fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.public-home .auth-gate {
+  min-height: 0;
+  padding: 0;
+  display: block;
+}
+
 .auth-panel {
   width: min(440px, 100%);
 }
@@ -67,6 +84,179 @@
   color: #ffd2cc;
 }
 
+.public-demo {
+  color: #f2f1e8;
+}
+
+.public-demo-intro {
+  margin-bottom: 20px;
+}
+
+.public-demo-intro h2 {
+  margin: 0 0 8px;
+  font-size: 30px;
+}
+
+.public-demo-intro > .muted {
+  max-width: 430px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.public-demo-card {
+  padding: 30px;
+  border: 1px solid #2d3d34;
+  border-radius: 10px;
+  background: rgba(18, 29, 24, .88);
+  box-shadow: 0 24px 70px #0004;
+}
+
+.public-demo-header,
+.public-demo-brand,
+.public-demo-customer-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.public-demo-brand {
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.public-demo-brand h2 {
+  margin: 0;
+}
+
+.public-demo-brand h3 {
+  margin: 0;
+  color: #f2f1e8;
+  font: 20px 'DM Serif Display', Georgia, serif;
+}
+
+.public-demo-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d9a84e;
+  border-radius: 5px;
+  background: #17231c;
+  color: #d9a84e;
+  font: 18px Georgia, serif;
+}
+
+.public-demo-overdue {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #2a2315;
+  color: #e9c56f;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.public-demo-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 22px 0 18px;
+}
+
+.public-demo-summary > div {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid #2d3d34;
+  border-radius: 7px;
+  background: #17231c;
+}
+
+.public-demo-summary span {
+  color: #91a49a;
+  font-size: 13px;
+}
+
+.public-demo-summary strong {
+  color: #9fbe9d;
+  font-size: 19px;
+}
+
+.public-demo-summary > div:last-child strong {
+  color: #d9a84e;
+}
+
+.public-demo-customers {
+  display: grid;
+  gap: 17px;
+}
+
+.public-demo-customer-label {
+  margin-bottom: 7px;
+  gap: 12px;
+  color: #f2f1e8;
+}
+
+.public-demo-customer-label strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.public-demo-customer-label span {
+  color: #91a49a;
+  white-space: nowrap;
+}
+
+.public-demo-progress {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #26352d;
+}
+
+.public-demo-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #9fbe9d;
+}
+
+.public-demo-progress span.overdue {
+  background: #d9a84e;
+}
+
+.public-demo-reminder {
+  width: 100%;
+  margin-top: 21px;
+  padding: 15px;
+  border: 1px solid #3b4c40;
+  border-radius: 6px;
+  background: #1d2b23;
+  color: #e6e5da;
+  font: 600 14px 'IBM Plex Sans', sans-serif;
+  cursor: pointer;
+}
+
+.public-demo-reminder:hover {
+  background: #26392d;
+}
+
+.public-demo-note,
+.public-demo-disclaimer {
+  color: #91a49a;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.public-demo-note {
+  margin: 12px 4px 0;
+  text-align: center;
+}
+
+.public-demo-disclaimer {
+  margin: 14px 8px 0;
+  text-align: center;
+}
+
 @media (max-width: 800px) {
   .topbar {
     margin-left: 0;
@@ -81,5 +271,23 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .public-home {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    padding: 28px 18px 40px;
+  }
+
+  .auth-panel {
+    margin: 0 auto;
+  }
+
+  .public-demo-card {
+    padding: 22px;
+  }
+
+  .public-demo-intro h2 {
+    font-size: 26px;
   }
 }

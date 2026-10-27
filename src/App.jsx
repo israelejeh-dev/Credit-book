@@ -4,6 +4,7 @@ import { auth, db, firebaseReady } from './firebaseClient';
 import { addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import Navbar from './components/Navbar';
 import AuthPanel from './components/AuthPanel';
+import PublicCreditBookDemo from './components/PublicCreditBookDemo';
 import AddCustomer from './components/AddCustomer';
 import CustomerList from './components/CustomerList';
 import LedgerHistory from './components/LedgerHistory';
@@ -184,7 +185,10 @@ function App() {
       {authLoading ? (
         <main className="auth-gate"><p className="muted">Checking your account…</p></main>
       ) : !authUser ? (
-        <AuthPanel mode={authMode} authAvailable={firebaseReady} />
+        <main className="public-home">
+          <AuthPanel mode={authMode} authAvailable={firebaseReady} />
+          <PublicCreditBookDemo />
+        </main>
       ) : (
       <main className="content">
         {dataError && <div className="connection-banner">{dataError}</div>}
