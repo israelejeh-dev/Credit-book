@@ -22,13 +22,13 @@ VITE_FIREBASE_APP_ID=your-app-id
 The app uses two Firestore collections:
 
 - `customers`: `name`, `phone`, `created_at`, `ownerUid`
-- `ledger_entries`: `customer_id`, `type` (`credit` or `payment`), `amount`, `note`, `created_at`, `ownerUid`
+- `ledger_entries`: `customer_id`, `type` (`credit`, `payment`, or `invoice`), `amount`, `note`, `created_at`, `ownerUid`; invoice entries also store `amount_paid` and `amount_owed`
 
 The Firebase client is kept in `src/firebaseClient.js`. The React components use simple Firestore reads and writes with `async/await`.
 
 ## Secure Firestore access
 
-The app filters records by the signed-in user's Firebase Authentication UID. This client-side filter is not a security boundary on its own: deploy the included `firestore.rules` to Firebase before using real customer data. The rules require authentication, enforce immutable ownership, and allow ledger entries only for customers owned by the same account.
+The app filters records by the signed-in user's Firebase Authentication UID. This client-side filter is not a security boundary on its own: deploy the included `firestore.rules` to Firebase before using real customer data. The rules require authentication, enforce immutable ownership, and allow ledger entries only for customers owned by the same account. Invoice entries keep both the amount paid and the amount still owed in a single record.
 
 The signed-out page includes a public credit-book preview populated with illustrative sample data only. It does not read Firestore or send real reminders.
 

@@ -9,6 +9,7 @@ import AddCustomer from './components/AddCustomer';
 import CustomerList from './components/CustomerList';
 import LedgerHistory from './components/LedgerHistory';
 import RecordEntryModal from './components/RecordEntryModal';
+import AddInvoiceModal from './components/AddInvoiceModal';
 import './styles.css';
 import './auth.css';
 
@@ -30,6 +31,7 @@ function App() {
   const [entries, setEntries] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showEntryModal, setShowEntryModal] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dataError, setDataError] = useState('');
 
@@ -110,6 +112,7 @@ function App() {
   function getBalance(customerId) {
     return entries.reduce((balance, entry) => {
       if (entry.customer_id !== customerId) return balance;
+      if (entry.type === 'invoice') return balance + Number(entry.amount_owed || 0);
       return balance + (entry.type === 'credit' ? Number(entry.amount) : -Number(entry.amount));
     }, 0);
   }
@@ -138,6 +141,19 @@ function App() {
     } catch (error) {
       console.error(error);
       setDataError('Could not save the ledger entry. Check your connection and Firestore security rules.');
+    }
+  }
+
+  async function addInvoice(invoice) {
+    if (!db || !authUser) { setDataError('Log in before adding invoices.'); return; }
+    const invoiceData = { ...invoice, ownerUid: authUser.uid };
+    try {
+      const invoiceRef = await addDoc(collection(db, 'ledger_entries'), invoiceData);
+      setEntries((current) => [{ id: invoiceRef.id, ...invoiceData }, ...current]);
+      setShowInvoiceModal(false);
+    } catch (error) {
+      console.error(error);
+      setDataError('Could not save the invoice. Check your connection and Firestore security rules.');
     }
   }
 
@@ -198,7 +214,10 @@ function App() {
             <h1>{activePage === 'overview' ? greeting : activePage[0].toUpperCase() + activePage.slice(1)}</h1>
             <p className="muted">A clear record of what’s owed, paid, and still to come.</p>
           </div>
-          <button className="primary-button" onClick={() => setShowEntryModal(true)} disabled={!selectedCustomer}>Record sale or payment</button>
+          <div className="page-actions">
+            <button className="secondary-button" onClick={() => setShowInvoiceModal(true)} disabled={!selectedCustomer}>Add invoice</button>
+            <button className="primary-button" onClick={() => setShowEntryModal(true)} disabled={!selectedCustomer}>Record sale or payment</button>
+          </div>
         </section>
 
         {activePage === 'overview' && (
@@ -226,6 +245,7 @@ function App() {
       </main>
       )}
       {showEntryModal && <RecordEntryModal customer={selectedCustomer} onClose={() => setShowEntryModal(false)} onSave={addEntry} />}
+      {showInvoiceModal && <AddInvoiceModal customer={selectedCustomer} onClose={() => setShowInvoiceModal(false)} onSave={addInvoice} />}
     </div>
   );
 }
@@ -240,7 +260,13 @@ function Overview({ customers, entries, totalOutstanding, openBalances, getBalan
     </section>
     <section className="overview-grid">
       <div className="panel"><div className="panel-heading"><div><p className="eyebrow">BALANCES</p><h2>Customers who owe</h2></div></div><div className="customer-list">{openBalances.length ? openBalances.slice(0, 6).map((customer) => <button className="customer-row" key={customer.id} onClick={() => onSelect(customer)}><span><strong>{customer.name}</strong><small>{customer.phone}</small></span><span className="balance owing">₦{getBalance(customer.id).toLocaleString()}</span></button>) : <p className="muted empty-state">No open balances yet.</p>}</div></div>
-      <div className="panel activity-panel"><div className="panel-heading"><div><p className="eyebrow">RECENT ACTIVITY</p><h2>Latest entries</h2></div></div><div className="ledger-list">{loading ? <p className="muted empty-state">Loading activity…</p> : entries.slice(0, 6).map((entry) => <div className="ledger-row" key={entry.id}><span><strong>{entry.type === 'credit' ? 'Credit recorded' : 'Payment received'}</strong><small>{entry.note || 'No note'} · {new Date(entry.created_at).toLocaleDateString()}</small></span><strong className={entry.type === 'credit' ? 'credit' : 'payment'}>{entry.type === 'credit' ? '+' : '-'}₦{Number(entry.amount).toLocaleString()}</strong></div>)}</div></div>
+      <div className="panel activity-panel"><div className="panel-heading"><div><p className="eyebrow">RECENT ACTIVITY</p><h2>Latest entries</h2></div></div><div className="ledger-list">{loading ? <p className="muted empty-state">Loading activity…</p> : entries.slice(0, 6).map((entry) => {
+        const isInvoice = entry.type === 'invoice';
+        const label = isInvoice ? 'Invoice' : entry.type === 'credit' ? 'Credit recorded' : 'Payment received';
+        const detail = isInvoice ? `Paid ₦${Number(entry.amount_paid).toLocaleString()} · owed ₦${Number(entry.amount_owed).toLocaleString()}` : entry.note || 'No note';
+        const amount = isInvoice ? entry.amount_owed : entry.amount;
+        return <div className="ledger-row" key={entry.id}><span><strong>{label}</strong><small>{detail} · {new Date(entry.created_at).toLocaleDateString()}</small></span><strong className={entry.type === 'payment' ? 'payment' : 'credit'}>{entry.type === 'payment' ? '-' : '+'}₦{Number(amount).toLocaleString()}</strong></div>;
+      })}</div></div>
     </section>
   </>;
 }

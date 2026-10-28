@@ -32,11 +32,30 @@ service cloud.firestore {
       allow create: if signedIn()
         && request.resource.data.ownerUid == request.auth.uid
         && ownsCustomer(request.resource.data.customer_id)
-        && request.resource.data.keys().hasAll(['customer_id', 'type', 'amount', 'note', 'created_at', 'ownerUid'])
-        && request.resource.data.keys().hasOnly(['customer_id', 'type', 'amount', 'note', 'created_at', 'ownerUid'])
-        && request.resource.data.type in ['credit', 'payment']
-        && request.resource.data.amount is number
-        && request.resource.data.amount > 0;
+        && (
+          (
+            request.resource.data.keys().hasAll(['customer_id', 'type', 'amount', 'note', 'created_at', 'ownerUid'])
+            && request.resource.data.keys().hasOnly(['customer_id', 'type', 'amount', 'note', 'created_at', 'ownerUid'])
+            && request.resource.data.type in ['credit', 'payment']
+            && request.resource.data.amount is number
+            && request.resource.data.amount > 0
+          )
+          ||
+          (
+            request.resource.data.keys().hasAll(['customer_id', 'type', 'amount', 'amount_paid', 'amount_owed', 'note', 'created_at', 'ownerUid'])
+            && request.resource.data.keys().hasOnly(['customer_id', 'type', 'amount', 'amount_paid', 'amount_owed', 'note', 'created_at', 'ownerUid'])
+            && request.resource.data.type == 'invoice'
+            && request.resource.data.amount is number
+            && request.resource.data.amount_paid is number
+            && request.resource.data.amount_owed is number
+            && request.resource.data.amount > 0
+            && request.resource.data.amount_paid >= 0
+            && request.resource.data.amount_paid <= request.resource.data.amount
+            && request.resource.data.amount_owed >= 0
+            && request.resource.data.amount_owed <= request.resource.data.amount
+            && request.resource.data.amount_paid + request.resource.data.amount_owed == request.resource.data.amount
+          )
+        );
 
       allow read, delete: if signedIn()
         && resource.data.ownerUid == request.auth.uid;

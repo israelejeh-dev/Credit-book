@@ -150,6 +150,12 @@ h2,
   margin-bottom: 28px;
 }
 
+.page-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .eyebrow {
   margin: 0 0 9px;
   color: #687365;
@@ -364,6 +370,35 @@ label input {
 .add-customer input::placeholder,
 label input::placeholder {
   color: #96978f;
+}
+
+.invoice-modal {
+  display: grid;
+  gap: 13px;
+}
+
+.invoice-modal .modal-heading {
+  margin-bottom: 3px;
+}
+
+.invoice-modal label {
+  display: grid;
+  gap: 7px;
+  color: #62675d;
+  font-size: 13px;
+}
+
+.invoice-modal .invoice-total {
+  border-color: #dfe5d8;
+  background: #eff3ec;
+  color: #345b3e;
+  font-weight: 700;
+}
+
+.form-error {
+  margin: 0;
+  color: #9a4d32;
+  font-size: 12px;
 }
 
 .customer-list,
@@ -605,6 +640,14 @@ label {
     align-items: start;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .page-actions {
+    width: 100%;
+  }
+
+  .page-actions button {
+    flex: 1;
   }
 
   .stat-grid {
