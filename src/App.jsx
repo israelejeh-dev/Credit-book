@@ -8,7 +8,6 @@ import PublicCreditBookDemo from './components/PublicCreditBookDemo';
 import AddCustomer from './components/AddCustomer';
 import CustomerList from './components/CustomerList';
 import LedgerHistory from './components/LedgerHistory';
-import RecordEntryModal from './components/RecordEntryModal';
 import AddInvoiceModal from './components/AddInvoiceModal';
 import './styles.css';
 import './auth.css';
@@ -30,7 +29,6 @@ function App() {
   const [customers, setCustomers] = useState([]);
   const [entries, setEntries] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [showEntryModal, setShowEntryModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dataError, setDataError] = useState('');
@@ -131,19 +129,6 @@ function App() {
     }
   }
 
-  async function addEntry(entry) {
-    if (!db || !authUser) { setDataError('Log in before recording ledger entries.'); return; }
-    const entryData = { ...entry, ownerUid: authUser.uid };
-    try {
-      const entryRef = await addDoc(collection(db, 'ledger_entries'), entryData);
-      setEntries((current) => [{ id: entryRef.id, ...entryData }, ...current]);
-      setShowEntryModal(false);
-    } catch (error) {
-      console.error(error);
-      setDataError('Could not save the ledger entry. Check your connection and Firestore security rules.');
-    }
-  }
-
   async function addInvoice(invoice) {
     if (!db || !authUser) { setDataError('Log in before adding invoices.'); return; }
     const invoiceData = { ...invoice, ownerUid: authUser.uid };
@@ -215,8 +200,7 @@ function App() {
             <p className="muted">A clear record of what’s owed, paid, and still to come.</p>
           </div>
           <div className="page-actions">
-            <button className="secondary-button" onClick={() => setShowInvoiceModal(true)} disabled={!selectedCustomer}>Add invoice</button>
-            <button className="primary-button" onClick={() => setShowEntryModal(true)} disabled={!selectedCustomer}>Record sale or payment</button>
+            <button className="primary-button" onClick={() => setShowInvoiceModal(true)} disabled={!selectedCustomer}>Add invoice</button>
           </div>
         </section>
 
@@ -244,7 +228,6 @@ function App() {
         )}
       </main>
       )}
-      {showEntryModal && <RecordEntryModal customer={selectedCustomer} onClose={() => setShowEntryModal(false)} onSave={addEntry} />}
       {showInvoiceModal && <AddInvoiceModal customer={selectedCustomer} onClose={() => setShowInvoiceModal(false)} onSave={addInvoice} />}
     </div>
   );
